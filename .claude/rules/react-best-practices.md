@@ -69,7 +69,7 @@ const MonacoEditor = lazy(() => import("./monaco-editor"));
 // 使用時は Suspense で囲む
 <Suspense fallback={<div>読み込み中...</div>}>
   <MonacoEditor />
-</Suspense>
+</Suspense>;
 ```
 
 ## 3. 再レンダリング最適化（MEDIUM）
@@ -82,7 +82,7 @@ const addItems = useCallback(
   (newItems: Item[]) => {
     setItems([...items, ...newItems]);
   },
-  [items]
+  [items],
 );
 
 // ✅ GOOD: 依存配列不要、stale closure を防止
@@ -96,7 +96,7 @@ const addItems = useCallback((newItems: Item[]) => {
 ```tsx
 // ❌ BAD: 毎レンダリングで実行
 const [settings, setSettings] = useState(
-  JSON.parse(localStorage.getItem("settings") || "{}")
+  JSON.parse(localStorage.getItem("settings") || "{}"),
 );
 
 // ✅ GOOD: 初回のみ実行
@@ -128,9 +128,7 @@ useEffect(() => {
 // ❌ BAD: 毎レンダリングで再生成
 function Container() {
   return (
-    <div>
-      {loading && <div className="animate-pulse h-20 bg-gray-200" />}
-    </div>
+    <div>{loading && <div className="animate-pulse h-20 bg-gray-200" />}</div>
   );
 }
 
@@ -146,10 +144,14 @@ function Container() {
 
 ```tsx
 // ❌ BAD: count が 0 のとき "0" がレンダリングされる
-{count && <span>{count}</span>}
+{
+  count && <span>{count}</span>;
+}
 
 // ✅ GOOD: 明示的な条件
-{count > 0 ? <span>{count}</span> : null}
+{
+  count > 0 ? <span>{count}</span> : null;
+}
 ```
 
 ## 5. JavaScript パフォーマンス（LOW-MEDIUM）
@@ -164,16 +166,6 @@ items.filter((item) => allowedIds.includes(item.id));
 // ✅ GOOD: O(1) per check
 const allowedIds = new Set(["a", "b", "c"]);
 items.filter((item) => allowedIds.has(item.id));
-```
-
-### toSorted() で immutable ソート
-
-```tsx
-// ❌ BAD: 元の配列を変更（React state/props で問題）
-const sorted = users.sort((a, b) => a.name.localeCompare(b.name));
-
-// ✅ GOOD: 新しい配列を作成
-const sorted = users.toSorted((a, b) => a.name.localeCompare(b.name));
 ```
 
 ### 複数の filter/map を1ループにまとめる
@@ -234,12 +226,12 @@ function loadConfig(): Config | null {
 
 ## 8. コンポーネント設計原則
 
-| 原則 | 説明 |
-|------|------|
-| 単一責任 | 1 コンポーネント = 1 責任 |
-| Props で制御 | 内部状態を最小限に |
-| コンポジション優先 | 継承より合成 |
-| 早期リターン | ガード節でネストを減らす |
+| 原則               | 説明                      |
+| ------------------ | ------------------------- |
+| 単一責任           | 1 コンポーネント = 1 責任 |
+| Props で制御       | 内部状態を最小限に        |
+| コンポジション優先 | 継承より合成              |
+| 早期リターン       | ガード節でネストを減らす  |
 
 ## このプロジェクト固有のルール
 
